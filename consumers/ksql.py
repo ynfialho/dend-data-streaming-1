@@ -16,23 +16,23 @@ KSQL_STATEMENT = """
 CREATE TABLE turnstile (
     station_id INT,
     station_name VARCHAR,
-    line VARCHAR
+    line VARCHAR 
 ) WITH (
-    kafka_topic = 'org.chicago.cta.turnstile.v1',
-    value_format = 'avro',
-    key = 'station_id'
+    KAFKA_TOPIC='from_turnstile',
+    VALUE_FORMAT='avro',
+    KEY='station_id'
 );
-CREATE TABLE TURNSTILE_SUMMARY
-WITH (value_format = 'json') AS
-SELECT station_id, COUNT(station_id) AS count 
-FROM turnstile
-GROUP BY station_id;
+CREATE TABLE turnstile_summary
+WITH (VALUE_FORMAT='json') AS
+    SELECT station_id, COUNT(station_id) AS turnstile_count
+    FROM turnstile
+    GROUP BY station_id;
 """
 
 
 def execute_statement():
     """Executes the KSQL statement against the KSQL API"""
-    if topic_check.topic_exists("TURNSTILE_SUMMARY") is True:
+    if topic_check.topic_exists("turnstile_summary") is True:
         return
 
     logging.debug("executing ksql statement...")
@@ -49,6 +49,7 @@ def execute_statement():
     )
 
     # Ensure that a 2XX status code was returned
+    print(resp.text)
     resp.raise_for_status()
 
 

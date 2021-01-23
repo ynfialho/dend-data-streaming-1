@@ -1,8 +1,6 @@
 """Defines trends calculations for stations"""
 import logging
-
 import faust
-
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +26,12 @@ class TransformedStation(faust.Record):
     order: int
     line: str
 
-app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
-topic = app.topic("org.chicago.cta.stations", value_type=Station)
-out_topic = app.topic("org.chicago.cta.stations.table.v1", partitions=1)
 
+app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
+topic = app.topic("jdbc-stations", value_type=Station)
+out_topic = app.topic("faust_table", partitions=1)
 table = app.Table(
-    name="org.chicago.cta.stations.table.v1",
+    "faust_table",
     default=TransformedStation,
     partitions=1,
     changelog_topic=out_topic,
@@ -41,17 +39,23 @@ table = app.Table(
 
 
 @app.agent(topic)
-async def station_event(events):
-    async for e in events:
-        if e.red:
-            line = 'red'
-        elif e.blue:
-            line = 'blue'
+async def process_stations(stations):
+    async for station in stations:
+        if station.red:
+            line = "red"
+        elif station.blue:
+            line = "blue"
+        elif station.green:
+            line = "green"
         else:
-            line = 'green'
+            line = "N/A"
 
-        transformed_station = TransformedStation(e.station_id, e.stop_name, e.order, line)
-        table[transformed_station.station_id] = transformed_station
+        table[station.station_id] = TransformedStation(
+            station_id=station.station_id,
+            station_name=station.station_name,
+            order=station.order,
+            line=line
+        )
 
 if __name__ == "__main__":
     app.main()
