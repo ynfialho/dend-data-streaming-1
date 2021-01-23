@@ -10,7 +10,6 @@ import requests
 
 from models.producer import Producer
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -31,11 +30,11 @@ class Weather(Producer):
 
     def __init__(self, month):
         super().__init__(
-            "topic.weather", 
+            topic_name="weather_topic",
             key_schema=Weather.key_schema,
             value_schema=Weather.value_schema,
             num_partitions=2,
-            num_replicas=2
+            num_replicas=2,
         )
 
         self.status = Weather.status.sunny
@@ -48,6 +47,7 @@ class Weather(Producer):
         if Weather.key_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_key.json") as f:
                 Weather.key_schema = json.load(f)
+
         if Weather.value_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_value.json") as f:
                 Weather.value_schema = json.load(f)
@@ -64,7 +64,7 @@ class Weather(Producer):
 
     def run(self, month):
         self._set_weather(month)
-        logger.info("weather kafka proxy integration incomplete - skipping")
+
         resp = requests.post(
             f"{Weather.rest_proxy_url}/topics/{self.topic_name}",
             headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
