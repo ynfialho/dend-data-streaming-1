@@ -41,8 +41,7 @@ class Producer:
         #
         #
         self.broker_properties = {
-            "bootstrap.servers": self.BOOTSTRAP_SERVERS,
-            "schema.registry.url": self.SCHEMA_REGISTRY_URL,
+            "bootstrap.servers": self.BOOTSTRAP_SERVERS
         }
 
         # If the topic does not already exist, try to create it
