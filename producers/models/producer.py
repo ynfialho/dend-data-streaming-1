@@ -8,7 +8,6 @@ from confluent_kafka import avro
 from confluent_kafka.admin import AdminClient, NewTopic
 from confluent_kafka.avro import AvroProducer, CachedSchemaRegistryClient
 
-logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 logger = logging.getLogger(__name__)
 
 
