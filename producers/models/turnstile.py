@@ -8,7 +8,6 @@ from models.producer import Producer
 from models.turnstile_hardware import TurnstileHardware
 
 
-logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 logger = logging.getLogger(__name__)
 
 class Turnstile(Producer):
