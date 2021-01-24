@@ -70,7 +70,7 @@ class Producer:
         if self.producer:
             logger.debug("Flushing producer")
             self.producer.flush()
-
+    @staticmethod
     def time_millis():
         """Use this function to get the key for Kafka Events"""
         return int(round(time.time() * 1000))

@@ -35,7 +35,7 @@ class KafkaConsumer:
             self.broker_properties["schema.registry.url"] = "http://localhost:8081"
             self.consumer = AvroConsumer(config=self.broker_properties)
         else:
-            self.consumer = Consumer(self. )
+            self.consumer = Consumer(self.broker_properties)
 
         self.consumer.subscribe([topic_name_pattern], on_assign=self.on_assign)
 
