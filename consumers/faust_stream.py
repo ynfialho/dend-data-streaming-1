@@ -4,7 +4,7 @@ import faust
 
 
 logger = logging.getLogger(__name__)
-
+TOPIC_PREFIX = "org.chicago.cta.stations" 
 
 # Faust will ingest records from Kafka in this format
 class Station(faust.Record):
@@ -29,8 +29,8 @@ class TransformedStation(faust.Record):
 
 
 app = faust.App("stations-stream", broker="kafka://0.0.0.0:9092", store="memory://")
-topic = app.topic("org.chicago.cta.stations", value_type=Station)
-out_topic = app.topic("org.chicago.cta.stations.table.v1", value_type=TransformedStation, partitions=1)
+topic = app.topic(TOPIC_PREFIX, value_type=Station)
+out_topic = app.topic(f"{TOPIC_PREFIX}.table.v1", value_type=TransformedStation, partitions=1)
 
 table = app.Table(
     "stations",
@@ -42,14 +42,13 @@ table = app.Table(
 @app.agent(topic)
 async def process_stations(stations):
     async for station in stations:
+        line = "None" 
         if station.red:
             line = "red"
         elif station.blue:
             line = "blue"
         elif station.green:
             line = "green"
-        else:
-            line = "N/A"
 
         table[station.station_id] = TransformedStation(
             station_id=station.station_id,
