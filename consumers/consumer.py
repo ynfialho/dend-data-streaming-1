@@ -60,7 +60,7 @@ class KafkaConsumer:
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
         while True:
-            message = self.consumer.poll(timeout=2.0)
+            message = self.consumer.poll(timeout=1.0)
             if message is None:
                 logger.info("_consume is incomplete - skipping")
                 return 0
