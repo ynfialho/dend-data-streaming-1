@@ -2,6 +2,7 @@
 import logging
 import faust
 
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,15 +28,15 @@ class TransformedStation(faust.Record):
     line: str
 
 
-app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
-topic = app.topic("jdbc-stations", value_type=Station)
-out_topic = app.topic("faust_table", partitions=1)
+app = faust.App("stations-stream", broker="kafka://0.0.0.0:9092", store="memory://")
+topic = app.topic("org.chicago.cta.stations", value_type=Station)
+out_topic = app.topic("org.chicago.cta.stations.table.v1", value_type=TransformedStation, partitions=1)
+
 table = app.Table(
-    "faust_table",
-    default=TransformedStation,
+    "stations",
+    default=int,
     partitions=1,
-    changelog_topic=out_topic,
-)
+    changelog_topic=out_topic)
 
 
 @app.agent(topic)
@@ -56,6 +57,7 @@ async def process_stations(stations):
             order=station.order,
             line=line
         )
+
 
 if __name__ == "__main__":
     app.main()
