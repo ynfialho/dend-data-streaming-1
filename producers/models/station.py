@@ -27,11 +27,9 @@ class Station(Producer):
         )
 
         super().__init__(
-            f"from_stations_{station_name}",
+            topic_name=f"org.chicago.cta.station.arrivals.{station_name}",
             key_schema=Station.key_schema,
-            value_schema=Station.value_schema,
-            num_partitions=2,
-            num_replicas=2,
+            value_schema=Station.value_schema
         )
 
         self.station_id = int(station_id)
@@ -44,30 +42,31 @@ class Station(Producer):
 
     def run(self, train, direction, prev_station_id, prev_direction):
         """Simulates train arrivals at this station"""
+
+        logger.debug("Station run function working")
         self.producer.produce(
             topic=self.topic_name,
             key={"timestamp": self.time_millis()},
             value={
                 "station_id": self.station_id,
                 "train_id": train.train_id,
-                "direction": direction,
                 "line": self.color.name,
+                "direction": direction,
                 "train_status": train.status.name,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction
-            }
+            },
         )
 
     def __str__(self):
-        return "Station | {:^5} | {:<30} | Direction A: | {:^5} | " \
-               "departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(
-                self.station_id,
-                self.name,
-                self.a_train.train_id if self.a_train is not None else "---",
-                self.dir_a.name if self.dir_a is not None else "---",
-                self.b_train.train_id if self.b_train is not None else "---",
-                self.dir_b.name if self.dir_b is not None else "---",
-                )
+        return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(
+            self.station_id,
+            self.name,
+            self.a_train.train_id if self.a_train is not None else "---",
+            self.dir_a.name if self.dir_a is not None else "---",
+            self.b_train.train_id if self.b_train is not None else "---",
+            self.dir_b.name if self.dir_b is not None else "---",
+        )
 
     def __repr__(self):
         return str(self)
