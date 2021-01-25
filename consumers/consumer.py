@@ -28,7 +28,8 @@ class KafkaConsumer:
         self.offset_earliest = offset_earliest
         self.broker_properties = {
             'bootstrap.servers': 'PLAINTEXT://0.0.0.0:9092,PLAINTEXT://0.0.0.0:9093,PLAINTEXT://0.0.0.0:9094',
-            'group.id': 'udacity_consumer'
+            'group.id': 'udacity_consumer',
+            'auto.offset.reset': 'earliest' if offset_earliest else 'latest'
         }
 
         if is_avro is True:
