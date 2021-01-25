@@ -45,7 +45,8 @@ class KafkaConsumer:
         logger.debug("Consumer on_assign function complete")
         for partition in partitions:
             consumer.seek(partition)
-
+            if self.offset_earliest:
+                partition.offset = OFFSET_BEGINNING
         logger.info("partitions assigned for %s", self.topic_name_pattern)
         consumer.assign(partitions)
 
